@@ -1,0 +1,597 @@
+---
+title: "Titre fiche"
+subtitle: "Sous-titre fiche"
+date: "`r Sys.Date()`"
+author: 
+ - name: Premier Auteur.e
+   affiliation: Affiliation_1, Affiliation_2
+ - name: Second Auteur.e
+   affiliation: Affiliation_1, Affiliation_2
+image: "featured.png"   
+logo: "figures/rzine.png"  
+output:
+  rzine::readrzine:
+    highlight: kate
+    number_sections: true
+csl: Rzine_citation.csl
+bibliography: biblio.bib
+nocite: |
+  @*
+link-citations: true
+# github: "author/repository"
+# gitlab: "gitlab.huma-num.fr/author/repository"
+# doi: "xx.xxx/xxxx.xxxxxxx"
+# licence: "by-sa"
+
+# Only Creative Commons Licence 
+# 5 possible choices : "by-nd", "by", "by-nc-sa", "by-nc","by-sa"
+---
+
+```{r setup, include=FALSE}
+
+## Global options
+knitr::opts_chunk$set(echo=TRUE,
+        	            cache=FALSE,
+                      prompt=FALSE,
+                      comment=NA,
+                      message=FALSE,
+                      warning=FALSE,
+                      class.source="bg-info",
+                      class.output="bg-warning")
+
+
+```
+
+
+> Le résumé de votre fiche dans cet encart
+
+# Introduction {-}
+
+
+# L'analyse multivariée
+
+Comment rendre compte de manière simple de la complexité des différents types de relations qui existent entre plusieurs variables d'une base de données ?
+
+C'est à cette question que permet, entre autre, de répondre l'analyse multivariée, et par extension les méthodes d'analyses factorielles qui appartiennent à ce champs de méthodes.
+
+<div class="alert alert-success" role="alert">
+On retrouve également dans le champ de l'analyse multivariée les modèles de régression.</div>
+
+
+# L'Objectif de l'analyse factorielle ?
+
+L'objectif général de l'analyse factorielle sera de réduire un nombre important d'informations (c'est à dire les valeurs contenues dans différentes variables) à quelques grandes dimensions. Il s'agit de synthétiser l'information.
+Par exemple, imaginons des chercheurs souhaitant étudier le comportement de préservation de l'environnement des français. Pour cela, ils récoltent différentes données concernant le statut socioprofessionnel des participants, leur état de santé, leur zone géographique d'habitation, leur implication dans des associations, etc. Ils recueillent donc beaucoup de données dans chacun des différents thèmes susceptibles d'expliquer leur hypothèse. Afin de synthétiser l'information alors recueillie, et éventuellement par la suite pouvoir dégager des profils de comportement, ou des liens de causalités, ils feront appel à l'une des méthodes de factorisation existante.
+
+Comme dans toute analyse statistique, on va chercher à expliquer la plus forte proportion de la variance (de la covariance dans le cas de l'analyse factorielle) par un nombre aussi restreint que possible de variables (appelées dans l'analyse factorielle composantes ou facteurs).
+
+
+## Les différents types d'analyses factorielles
+
+Cependant, l'analyse factorielle est, elle aussi, un regroupement de différentes méthodes dont les plus connues et les plus utilisées en SHS sont, pour les données quantitatives : l'analyse en composante principale (ACP), l'analyse factorielle exploratoire (AFE ou EFA en anglais) et l'analyse factorielle confirmatoire (CFA en anglais) ; et pour les données qualitatives : l'analyse factorielle des correspondances (AFC) et l'analyse des correspondances multiples (ACM).
+
+Ces différentes méthodes, si elles ont toutes l'objectif commun que nous avons exprimé précédemment, ont aussi des différences importantes.
+
+Pour mieux comprendre, un court aparté historique sur ces méthodes est utile.
+
+<div class="alert alert-success" role="alert">
+Les premiers à théoriser les méthodes d'analyses factorielles sont le mathématicien britanique Karl Pearson (1901) et le psychologue anglais Charles Spearman (1904).
+
+Pearson développera sa réflexion sur les analyses en compostantes principales (ACP) [Karl Pearson F.R.S. (1901) LIII. On lines and planes of closest fit to systems of points in space, The London, Edinburgh, and Dublin Philosophical Magazine and Journal of Science, 2:11, 559-572, DOI: 10.1080/14786440109462720]. Alors que Spearman se concentrera sur l'analyse factorielle, afin de rendre compte de la variance commune partagée par les items d'un même outil psychométrique. [Spearman, C. (1904). The Proof and Measurement of Association between Two Things. The American Journal of Psychology, 15(1), 72–101. https://doi.org/10.2307/1412159].
+Ces pionniers des analyses factorielles travaillaient déjà sur les corrélations, et ce sont ces mêmes personnes qui ont donné leurs noms aux coefficients de corrélation  de Pearson et de Spearman.
+
+Mais c'est notamment avec les travaux du mathématicien français Jean-Paul Benzecri ([Benzecri J.-P. (1973), L’analyse des données, Paris, Dunod, vol. 2 : Correspondances]), dans les années 70, que ces méthodes vont connaître leur essor en France [CF : Pages, J-P., et al., (1979), Analyse factorielle : Un peu d'histoire et de géométrie, Revue de statistiques appliquée, tome 27, n°1, p.5-28.]. En particulier grâce à l'apport des représentations graphiques qui permettent de venir synthétiser et illustrer les résultats. C'est Benzecri qui va développer les méthodes sortant du modèle gaussien en prenant en compte les variables catégorielles, telles que les analyses factorielles des correspondances (AFC) et les analyses factorielles des correspondances multiples (ACM)[CF : Pages, J-P., et al., (1979), Analyse factorielle : Un peu d'histoire et de géométrie, Revue de statistiques appliquée, tome 27, n°1, p.5-28.].
+</div>
+
+Si les méthodes popularisées par Benzecri ont su rester à la postérité et servir dans toutes les SHS, il est bon de se rappeler qu'il en existe d'autres qui les ont précédées. C'est par exemple le cas de l'analyse factorielle exploratoire (AFE). Cette méthode si elle est très utilisée en psychologie (discipline de Spearman), reste beaucoup plus rare dans les autres sciences humaines et sociales.
+Pourtant, l'Analyse en Composante Principale et l'Analyse Factorielle Exploratoire ne répondent pas aux mêmes besoins et aux mêmes hypothèses. L'ACP reste très utilisée dans l'ensemble des disciplines des SHS, hors Psychologie, quelque soit l'hypothèse testée. Ceci correspond davantage à des habitudes d'utilisation ou de certaines pratiques de la donnée, qu'à une réelle réflexion sur les méthodes de factorisation. Or, l'AFE répond en réalité à des besoins et des manières de penser très courantes dans toutes les SHS, et dans certains cas, devrait être privilégiée à l'ACP. [INDIQUER réf bibli]
+
+## Rajouter spécificités des analyses confirmatoires
+**Rajouter des éléments sur les différents tyes d'analyses ACM, AFC, AFM...** Faire exemple sur HDV ACM
+
+
+## ACP et AFE et quelles différences ?
+
+Les différences entre ces 2 méthodes sont importantes, bien que pas si simple à appréhender intuitivement. Ces deux méthodes vont différer tant dans leur objectif que dans leur approche.
+
+Si comme nous l'avons vu leur objectif commun va être une réduction de l'information, elle ne vont pas du tout opérer de la même manière.
+
+L'ACP va chercher à transformer un ensemble de variables corrélées en un ensemble de variables non corrélées (il s'agit des composantes principales qui donnent leur nom à la méthode). L'ACP va permettre de synthétiser nos données en composantes principales en tentant de conserver le maximum de variance des variables de notre base de données.
+En revanche l'AFE va explorer la structure sous-jacente des données en identifiant des facteurs latents qui expliquent les relations entre les variables observées. Les facteurs latents existent sur le plan conceptuel mais ne sont pas mesurés sauf au travers de nos variables observées. Ils sont établis à partir des données et de la configuration de l'ensemble des variables observées à classer. 
+
+Bien sûr les hypothèses qui sous-tendent ces deux méthodes sont différentes. Pour l'AFE on suppose que les variables observées sont influencées par des facteurs latents non observables qui expliquent le comportement commun de nos variables. L'AFE permet donc de modéliser les relations complexes entre les variables et les facteurs latents. Elle va permettre de faire émerger un pattern de relations entre ces variables.
+Pour l'ACP on va émettre l'hypothèse que nos variables vont se combiner de manière linéaire pour former nos composantes principales.
+
+Si les approches et les hypothèses différent, l'interprétation des résultats va elle aussi varier.
+
+Pour l'ACP on va considérer le poids ou la contribution d'une variable pour chaque composante principale, ce qui va permettre de mesurer l'importance relative des variables dans la variance totale de nos données. Pour l'AFE, nous allons étudier des charges factorielles, il s'agit en réalité des corrélations de chaque variable avec chaque facteur latent. Ces corrélations nous permettant d'étudier la relation entre les variables et les facteurs latents, et donc de donner du sens aux dimensions sous-jacentes.
+Concrètement, l'analyse factorielle exploratoire repose sur la comparaison entre la matrice de corrélation initiale (sans la grille de lecture obtenue suite à l'identification des facteurs latents) et la matrice de corrélation obtenue suite à l'identification des facteurs. Si la différence entre ces deux matrices est faible, alors l'analyse factorielle exploratoire obtenue est considérée comme bonne et les facteurs latents identifiés permettent bien de réduire l'information proposée. 
+
+## L' AFE pour quoi faire
+
+L'AFE va être particulièrement intéressante et appropriée lorsque l'on souhaite comprendre les dimensions sous-jacentes des données et les relations entre les variables plutôt que simplement réduire la dimensionnalité comme dans le cadre de l'ACP.
+
+L'ACP peut donc être un choix pertinent si on cherche à réduire la dimensionalité de nos données en conservant la variance maximale de nos données. En revanche si on cherche, comme c'est souvent le cas en SHS, à explorer et identifier des dimensions sous jacentes qui viendraient influencer nos variables l'AFE s'avérera très probablement être le meilleur choix.
+
+## Limites de l'AFE
+
+Comme toutes les méthodes d'analyse de données l'AFE comporte des limites.
+La limite majeure de l'AFE, c'est que cette méthode est plus efficiente avec des variables continues. Il est tout-à-fait possible de l'utiliser avec des variables ordonnées  : catégories qui suivent un ordre, (par ex. de 1. "Pas du tout" à 5. "Absolument") en traduisant chaque catégorie par un score. On peut également réaliser ce type d'analyse avec des variables catégorielles (catégories sans échelle de valeur entre elles par ex. : profession) mais il faudra alors être beaucoup plus prudent sur l'interprétation. Et selon les cas, il peut être plus pertinent d'utiliser une autre méthode de factorisation comme l'analyse des correspondances multiples (ACM) ou une analyse factorielle des correspondances (AFC).
+
+La taille de l'échantillon est également un élément contraignant ce type d'analyse. Si l'échantillon est trop faible en regard de la taille des informations à synthétiser, les résultats obtenus risquent de surreprésenter les spécifictés de la population alors testée. La structure de l'analyse ne sera pas généralisable mais influencée par les spécificités de l'échantillon. Il est donc important d'avoir une taille d'échantillon suffisamment importante afin de pallier ce type de biais. (REF bibli !!!).
+
+Des corrélations trop fortes ou trop faibles entre les variables peuvent mettre en péril la mise en facteur des informations, mais pas pour les mêmes raisons. 
+Si le set de variables soumis à la factorisation n'est pas du tout corrélé alors les éléments présentés ne partagent pas d'éléments communs et ne peuvent être résumés sous un même facteur. L'hétérogénéité des informations peut tout-à-fait empêcher son résumé statistique via l'utilisation des analyses factorielles. Il n'est pas possible de réaliser des analyses factorielles sur des ensembles de variables non-corrélés.
+A l'inverse, si les variables retenues pour l'analyse sont trop fortement corrélées alors ceci sous-tend qu'elles contiennent des informations tellement similaires qu'elles en sont redondantes. Cette redondance peut tout-à-fait biaiser la factorisation des informations car certains éléments seront surreprésentés artificiellement par rapport à d'autres. Ce problème peut être résolu en sélectionnant uniquement l'une des deux variables représentatives d'un même phénomène. Par exemple, la Catégorie Socio-professionnelle et le niveau de diplôme sont très souvent très corrélés, il faudra sélectionner l'une de ces deux variable dans le modèle d'analyse factorielle pour que celui-ci soit optimal. (REF bibli !!)
+
+La subjectivité de l'interprétation (positionnement théorique du chercheur, identification et interprétation facteurs latent)
+
+
+# Les packages
+```{r}
+if (!require("pacman")) install.packages("pacman")
+pacman::p_load(correlation, corrplot, dplyr, EFA.dimensions, factoextra, FactoMineR, ggraph, ggplot2, nFactors, parallel, parameters, psych, RColorBrewer, see, table1, writexl)
+
+```
+
+A quoi servent ces différents packages ? :
+
+-* [pacman](https://cran.r-project.org/web/packages/pacman/index.html) : est un package de management de packages.
+-* les packages [correlation](https://cran.r-project.org/web/packages/correlation/index.html) et [corrplot](https://cran.r-project.org/web/packages/corrplot/vignettes/corrplot-intro.html) permettent de réaliser des corrélations et des graphiques tels que des corrélogrammes.
+-* [dplyr](https://cran.r-project.org/web/packages/dplyr/index.html) est un package de manipulation de données.
+-* Les packages [EFA.dimensions](https://cran.r-project.org/web/packages/EFA.dimensions/index.html), [nfactors](https://cran.r-project.org/web/packages/nFactors/index.html) et [parallel]() sont des packages utilisés pour vérifier si les données sont factorisables grâce à différents indices statistiques (KMO, etc.). Ils permettent également de déterminer le nombre de facteurs optimal à retenir selon le set de données soumis à l'analyse. 
+-* [factoextra](https://cran.r-project.org/web/packages/factoextra/index.html) et [FactoMineR](https://cran.r-project.org/web/packages/FactoMineR/index.html) sont employés afin de réaliser des analyses en compostantes principales et de visualiser facilement les résultats.
+-* [ggraph](https://cran.r-project.org/web/packages/ggraph/index.html),  [ggplot2](https://cran.r-project.org/web/packages/ggplot2/index.html),  [RColorBrewer](https://cran.r-project.org/web/packages/RColorBrewer/index.html) et [see](https://cran.r-project.org/web/packages/see/index.html) sont des packages dédiés à la production de représentations graphiques.
+-* Les packages [parameters](https://cran.r-project.org/web/packages/parameters/index.html), [psych](https://cran.r-project.org/web/packages/psych/index.html) et [table1](https://cran.r-project.org/web/packages/table1/vignettes/table1-examples.html) sont utilisés dans cette fiche pour réaliser des statistiques descriptives et des mises en forme de sortie exploitables directement. 
+-* [writexl](https://cran.r-project.org/web/packages/writexl/index.html) est utilisé pour extraire des bases de données au format xlsx.
+
+
+# Nos données
+
+A ré-écrire
+
+## Constitution du sous-ensemble de variables
+
+
+```{r, echo = TRUE}
+
+# Chargement des données de base
+
+library(here)
+csv_path <- here("data", "data_monde_afe.csv")
+
+data_monde_afe <- read.csv2(csv_path, row.names=1)
+
+
+### Centrer et réduire les variables
+dfz <-  data.frame(scale(data_monde_afe, center=T, scale=T))
+```
+
+Il est extrêmement recommandé de centrer-réduire ces données lorsque que l'on réalise une analyse statistique telle qu'une analyse factorielle. Cela implique de faire subir à nos données une transformation statistique visant à ce qu’elles aient une moyenne de 0 et un écart-type de 1. On parle aussi en statistique de standardisation. Cette transformation permet de conserver la variabilité de nos données (la distance entre chaque valeur reste inchangée), tout en les rendant comparables (elles sont placées sur une même échelle). Lorsque l’on s’apprête à faire de la modélisation statistique, il est très recommandé de réaliser cette opération au moins sur les variables que vous utiliserez comme variables explicatives dans votre modèle. Sur R on peut facilement réaliser cette opération avec la fonction `scale()` ou à “la main” l’opération est simple : on soustrait chaque valeur par la moyenne puis on divise par l’écart-type. 
+
+## Statistiques descriptives
+
+La première étape étant toujours la description des données, voici un tableau récapitulatif de nos variables : 
+
+```{r, echo = TRUE}
+
+
+table1(~ Superf + Pop + tx_natalite + tx_mortalite + pop2050 + tx_mort_infantile + indice_fecond + moins15 + plus65 + espvie_homme + espvie_femme + RNB_hab + nb_naissance + nb_deces + nb_deces_enf + RNB_ppa + Densite + esp_vie + tx_accroissement_nat + indice_pop_active, data=data_monde_afe) 
+
+```
+
+## Outliers : comment les gérer ?
+
+### La méthode de Mahalanobis
+
+Les outliers sont nos individus extrêmes, il est toujours nécessaire de pouvoir les identifier afin de savoir comment les gérer. L'enjeu autour de ces individus c'est qu'ils vont nécessairement influencer (voire fausser) les résultats de nos analyses. L'analyse obtenue sera différente si on ne les supprime pas (Zijlstra et al. 2011) [Zijlstra, W. P., van der Ark, L. A., & Sijtsma, K. (2011). Outliers in Questionnaire Data: Can They Be Detected and Should They Be Removed? Journal of Educational and Behavioral Statistics, 36(2), 186–212. http://www.jstor.org/stable/29789477] Dans le cadre des analyses multivariées, il est nécessaire de rechercher les multioutliers. Ce sont des valeurs extrêmes sur l'ensemble des variables de notre échantillon de variables et non prises séparément. En effet, certains individus peuvent ne pas avoir de caractéristiques extrêmes lorsque celles-ci sont étudiées séparément, mais se révéler être très différents du reste de l'échantillon sur un pattern de variables. Dans le cadre des analyses multivariées, il est essentiel de s'assurer que de telles particularités ne viennent pas perturber la qualité des résultats obtenus. Ne pas retirer les valeurs extrêmes expose à centrer l'analyse des résultats sur la distance entre cette valeur très différente du reste de l'échantillon et les autres valeurs. Ceci donc au détriment des variabilités qui pourraient être contenues dans le reste de l'échantillon. Ces variabilités seront donc écrasées et paraissent bien minimes face à la distance émise par la ou les valeurs extrêmes.  
+
+Il existe de nombreuses méthodes pour identier ces individus "extrêmes", une méthode robuste qui fait consensus dans le cadre de données multidimensionnelles (c'est à dire corrélées entre elles) est la méthode de Mahalanobis. Elle a été théorisé par  Prasanta Chandra Mahalanobis en 1936.[P. C. Mahalanobis, « On the generalised distance in statistics », Proceedings of the National Institute of Sciences of India, vol. 2, no 1,‎ 1936, p. 49–55]
+Cette technique estime les relations entre les variables et mesure la distance entre chaque point de données et le centre de distribution, tout en prenant en compte la covariance entre les variables. Cette approche est donc plus robuste que la simple utilisation des distances euclidiennes, car elle tient compte de la structure de covariance des données.
+
+### Identification des Outliers avec Mahalanobis
+
+Pour utiliser cette méthode nous pouvons simplement utiliser la fonction `mahalanobis()` disponible en R Base, mais nous choisissons plutôt la fonction `outlier()` du package `psych`. Car elle permet de calculer la distance de mahalanobis tout en gérant les valeures nulles, ce que ne fait pas la fonction de base.
+
+<div class="alert alert-danger" role="warning">
+Typiquement avec notre jeux de données initial nous ne pouvons pas faire tourner les lignes de  commande qui suivent. Il y a un message d'erreur qui est induit pas les trop fortes coorrélations.</div>
+
+```{r, echo = TRUE}
+# Calcul pour chaque individu de la distance de Mahalanobis
+
+outlier(data)
+data_outlier <- outlier(data)
+
+
+# Calcul pour chaque individu de la p-value associée à la distance de Mahalanobis.
+# Pour se faire on utilise le chi² de la distance de la distance de Mahalanobis.
+# "df" correspond au degré de liberté il est calculé par k-1 où k est le nombre de variable de notre base (sans les variables que nous venons de calculer à savoir mahalanobis et pvalue_mahalanobis)
+
+data$outlier<-outlier(data)
+sort(data$outlier)
+
+
+data_p<-data %>% filter(outlier<17)
+sort(data_p$outlier)
+
+```
+
+Nous avons ainsi calculé pour chaque ligne sa distance de Mahalanobis. Dès qu'on observe un saut de la valeur attribuée à chaque ligne, cela signifie que les lignes suivantes s'éloignent de l'ensemble de l'échantillon et peuvent être consiérées comme outliers. 
+Dans notre exemple on s'aperçoit que la valeur 16 n'apparaît pas entre les valeurs 15 et 17, valeurs de l'indice de Mahalanobis que nous venons de calculer. 
+
+## Avant de résumer l'information - examinons la matrice de corrélation
+
+L'analyse des corrélations est une étape toujours essentielle dans l'analyse de données, et notamment lorsque que l'on s'apprête à faire de la modélisation statistique.
+
+Cette étape est fondamentale pour plusieurs raisons. D'abord car elle nous permet d'étudier les relations entre nos variables, ce qui va nous donner des indications sur le meilleur modèle pour nos données.
+En effet, des corrélations trop fortes ou à l'inverse une absence totale de corrélation peut poser de nombreux problèmes comme par exemple:
+- La multi-colinéarité : Lorsque des variables sont trop fortement corrélées (positivement ou négativement) cela pose un problème de multi_colinéarité. Les  variables sont tellement liées qu'il devient difficile de distinguer leur impact individuel, cela va rendre les résultats peu fiables. Il deviendra compliqué d'interpréter les coefficients, finalement le coefficient rend compte de l'impact de quelle variable ?
+- Des risques de surajustement : Un modèle avec des prédicteurs trop fortement corrélés va être surajusté et donc ne sera pas bon dans son rôle prédictif.
+- Une instabilité du modèle : des modèles avec des variables trop fortement corrélées sont instables, en effet la moindre variation dans les données pourra provoquer de très grandes variations dans les résultats.
+- Un modèle non optimisé : un modèle doit respecter le principe de parcimonie, il ne faut pas qu'il contiennent de variables redondante (corrélation trop forte) ou inutile (absence de corrélation).
+- A l'inverse une absence totale de corrélation remet en question la pertinence de tester dans un même modèle des variables qui n'auraient donc aucun rapport entre elles.
+
+[ REF bibli  ??)]
+
+```{r, echo = TRUE}
+# Suppression de la variable outlier car nous ne souhaitons pas la conserver pour la suite de l'analyse.
+data_p<-subset(data_p, select = -c(outlier))
+
+# Matrice de corrélation
+cor <- correlation(data_p)
+
+
+cor %>%
+  summary(redundant = FALSE)
+
+## mettre en forme la matrice de corrélation (sans représentation graphique)
+
+```
+On note ici des corrélations très fortes qui vont donc nécessairement poser problèmes dans toutes nos analyses. Le principe des analyses multivariées est d'obtenir le modèle le plus parcimonieux possible. Il est donc nécessaire de supprimer toutes les variables apportant de la redondance d'information. 
+Dans notre base de données cela n'a rien de surprenant dans la mesure où un certain nombre de variables sont calculées à partir des variables initialement présentes dans notre base (par exemple l'espérance de vie est calculée à partir de XXXX).
+
+Nous allons donc retirer un certain nombre de variables qui corrèlent trop, au-delà de .95. Toutefois, nous n'allons pas supprimer les deux variables trop corrélées mais simplement une sur deux pour conserver l'information. 
+
+```{r, echo = TRUE}
+
+cor <- correlation(data_p)
+
+cor %>%
+  summary(redundant = FALSE)
+
+mat_cor <- summary(cor, redundant = TRUE)
+
+# Nom des lignes = valeurs de la première colonne ("Parameter")
+rownames(mat_cor) <- mat_cor[,1]
+
+# Transformation du data.frame en objet matrice (+ suppression première colonne)
+mat_cor<- as.matrix(mat_cor[,-1])
+
+nb <- nrow(data)
+
+# Calcul des matrices de p-values et des intervalles de confiance
+p.value <- cor_to_p(mat_cor, n = nb, method = "auto")
+
+# Extraction de la matrice des p-value uniquement
+p_mat <- p.value$p
+
+
+corrplot(mat_cor, 
+         p.mat = p_mat, 
+         number.digits = 2,
+         number.cex = 0.8,
+         type = "upper", 
+         order = "hclust", 
+         addCoef.col = "#636363", 
+         tl.col = "gray", 
+         tl.srt = 45, 
+         col=brewer.pal(n = 8, name = "PRGn"), 
+         sig.level = 0.05, 
+         insig = "blank", 
+         diag = FALSE, ) 
+
+# Suppression nb_deces_enf et RNB_ppa car dedondance théorique (?)
+data_p<-subset(data_p, select = -c(nb_deces_enf, RNB_ppa))
+```
+
+# ACP et AFE 
+
+## L'Analyse en composantes principales
+
+<div class="alert alert-danger" role="warning">
+Nous n'irons pas en profondeur sur l'explicatioon et le fond de l'analyse en composantes principales. L'ACP réalisé ici a surtout pour objectif de comparer avec l'AFE et de voir comment ces deux méthodes vont amener à une interprétation différente. Toutefois, nous suivrons le processus classique de réalisation d'une ACP.</div>
+
+### Petit rappel de l'ACP
+
+Comme nous l'avons dit le but de l'ACP est donc de réduire un jeu de donnée à N variables à quelques nouvelles variables qu'on appelle les composantes principales qui sont indépendantes c'est à dire non corrélées entre elles.
+Le but  c’est d’obtenir quelque chose qui est beaucoup plus facile à décrire et à représenter qu’un jeu de données avec beaucoup de variables.
+En une phrase, le coeur de l’ACP, c’est donc de calculer des composantes principales à partir des variables de base.
+
+
+### Les postulats de l'ACP
+
+Pour l'ACP certaines conditions et postulats sont nécessaires.
+
+Il faut d'abord vérifier la présence d'un minimun de corrélation, ce que nous avons fait précédemment. En effet, dans le cas où les corrélations sont très faibles ou inexistantes, il sera très difficile de faire émerger un ou des facteurs. Alors l’ACP n’est probablement pas l’analyse à conseiller.  
+
+Ensuite, il faut mesurer l'adéquation de l'échantillonnage. Cette mesure donne un aperçu global de la qualité des corrélations inter-items. Pour ce faire on va utiliser l'indice KMO. L’indice KMO  varie entre 0 et 1 et donne une information complémentaire à l’examen de la matrice de corrélation. Cet indice augmente plus la taille de l’échantillon est grande, plus les corrélations inter-items sont élevées, plus le nombre de variables est grand et plus le nombre de facteurs décroît.
+
+<div class="alert alert-danger" role="warning">
+L'interprétation du KMO se fait comme suit [REF !!]:
+- 0,80 et plus: Excellent
+- 0,70 et plus : Bien
+- 0,60 et plus : Médiocre
+- 0,50 et plus : Misérable
+- Moins de 0,50 : Inacceptable</div>
+
+Enfin, il faut vérifier que notre matice de corrélation n'est pas une matrice d'identité. C'est à dire une matrice de corrélation où toutes nos variables sont parfaitement indépendantes, c'est à dire où toutes les corrélations sont égales à 0. Pour ce faire nous allons utiliser le test de sphéricité de Bartlett. Nous espérons que le test soit significatif (p < 0,05) pour que nous puissions rejeter l’hypothèse nulle stipulant qu’il s’agisse d’une matrice d'identité. Rejeter l'hypothèse nulle signifie alors, que notre matrice est significativement différente d'une matrice d'identité.
+
+Pour réaliser un KMO et le test de Bartlett on peut utiliser la librairie `psych` avec les fonctions `KMO()` et `cortest.bartlett()`.
+Une alternative intéressante est la fonction `check_factostructure()` du package `performance`, cette fonction réalise les deux tests et nous indique si nos données sont appropriées pour réaliser une analyse factorielle.
+
+```{r, echo = TRUE}
+
+
+## Si test de Bartlett est significatif alors il y a absence de corrélation significative entre nos variables.
+## Ce n'est donc pas une matrice d'identité si p<0.05 
+cortest.bartlett(data_p, n=187) 
+
+
+###Measure of Sampling Adequacy (MSA)
+KMO(data_p) 
+
+# Avec package performance de la suite easystat
+
+performance::check_factorstructure(data_p)
+
+# Le KMO indique qu'il est approprié de supprimer la variable tx_mortalite ayant un KMO de 0.16.
+data_p2<-subset(data_p, select = -c(tx_mortalite))
+
+## Ce n'est donc pas une matrice d'identité si p<0.05 
+cortest.bartlett(data_p2, n=187) 
+
+
+###Measure of Sampling Adequacy (MSA)
+KMO(data_p2) 
+
+# Avec package performance de la suite easystat
+
+performance::check_factorstructure(data_p2)
+```
+
+### L'ACP en pratique
+
+Pour réaliser l'ACP nous utilisons le package `FactoMineR`. La fonction est assez simple, a minima on peut simplement lui indiquer notre base de données. Toutefois, certains arguments sont intéressants et méritent d'être réfléchis.
+
+
+```{r, echo = TRUE}
+
+## PCA = c'est la fonction pour ACP
+## en 1er mettre la matrice de données
+## scale.unit : même unité d'échelle (sinon penser à centrer les var).
+## ncp = nombre de facteurs attendus
+## graph : réalise un graph
+
+resACP<-FactoMineR::PCA(data_p2, scale.unit=TRUE, ncp=Inf, graph=T)
+
+```
+
+Pour cette première analyse nous avons laissé la fonction `PCA()` produire les graphiques par défaut. L'idée étant d'obtenir une première représentation de nos données. Nous avons d'ailleurs laissé les outliers pour visualiser comment notre jeu de données complet fonctionne. On voit d'ailleurs comment nos trois outliers principaux(Chine, Inde et Etats-Unis) rendent difficilement interprétable le graphique des individus. En outre, nos outliers expliquent en partie la forme de notre graphique des variables. En effet, avec la Chine et l'Inde comme outlier on comprend assez facilement pourquoi la variable "Pop" et les variables qui lui sont fortement corrélées (nb_naissance, nb_deces_enf) se positionne à cet endroit du graphique.
+
+Toutefois, avant de se lancer dans une analyse plus approfondie comme dans toutes les analyses factorielles il est important de savoir combien d'axes factoriels nous souhaitons conserver.
+
+Pour ce faire nous allons étudier les "eigenvalues" (saturations) qui correspondent, ainsi que le pourcentage de variance exprimé par chacune des dimensions.
+
+
+```{r, echo = TRUE}
+#Pour avoir l'ensemble des arguments
+resACP
+#plot sur les individus
+plot.PCA(resACP, axes=c(1, 2), choix="ind", habillage="none", col.ind="#7d0d82", col.ind.sup="blue", col.quali="magenta", label=c("ind", "ind.sup", "quali"), title=" individus")
+#plot sur les variables
+plot.PCA(resACP, axes=c(1, 2), choix="var", col.var="#7d0d82", col.quanti.sup="blue", label=c("var", "quanti.sup"), lim.cos2.var=0, title=" points")
+
+######### suite ? 3 composantes du coup ?
+
+data2<-data_monde_afe[-c(39, 65, 87, 138),] #39 = chine / 65 = USA / 87 = Inde / 138 = Nigéria / 161 = Russie
+
+resACP2<-FactoMineR::PCA(data2, quanti.sup=c(5,8,10,11,14,19, 1, 17)) #1 = densité / 17 = Superficie
+
+FactoMineR::plot.PCA(resACP2, axes=c(1, 2), choix="ind", habillage="none", col.ind="#7d0d82", col.ind.sup="blue", col.quali="magenta", label=c("ind", "ind.sup", "quali"), title=" individus")
+
+fviz_pca_ind(resACP2, col.ind = "cos2",
+             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+             repel = TRUE # Avoid text overlapping (slow if many points)
+             )
+
+#plot sur les variables
+FactoMineR::plot.PCA(resACP2, axes=c(1, 2), choix="var", col.var="#7d0d82", col.quanti.sup="blue", label=c("var", "quanti.sup"), lim.cos2.var=0, title=" points")
+
+fviz_pca_var(resACP2,  col.var="contrib",
+             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+             repel = TRUE # Avoid text overlapping
+             )
+
+fviz_pca_biplot(resACP2, repel = TRUE)
+
+
+### sortir les données de l'ACP qui nous intéressent 
+resACP$eig ### matrice des valeurs propres + variance expliquée
+resACP$var$coord
+resACP$var$contrib
+resACP$call$col.w
+
+
+```
+### L'AFE en pratique
+
+Comparons les résultats obtenus avec l'Analyse en compostantes principales avec l'Analyse Factorielle Exploratoire.
+```{r, echo = TRUE}
+
+
+### AFE
+
+# Même démarche que précédemment. Nos données sont-elles factorisables ?
+cortest.bartlett(data_p2, n=187)
+KMO(data_p2) 
+
+# Identification du nombre de facteurs
+n <- n_factors(data_p2)
+n
+
+
+SCREE_PLOT(data_p2, corkind="spearman", verbose=T)
+
+library(see)
+plot(n) + theme_modern()
+# Utilisation de mlr méthode considérée comme plus robuste même pour données non-normales
+
+# efa2
+efa2 <- psych::fa(data_p2, nfactors = 4, rotate="promax", fm="mlr") %>%
+  model_parameters(sort = TRUE, threshold = "max")
+
+efa2
+# efa3
+efa3 <- psych::fa(data_p2, nfactors = 3, rotate="promax", fm="mlr") %>%
+  model_parameters(sort = TRUE, threshold = "max")
+
+efa3
+
+# autre méth
+res<-fa(data,3,rotate="promax",fm="wls")
+
+print(res, digits = 3)
+###############################################################'
+###############################################################'
+###############################################################'
+
+
+### Toutes méthodes 
+### Communalités : u2
+### MLE chi square pour le nombre de facteur
+###factoring method fm="minres" will do a minimum residual (OLS), 
+#fm="wls" will do a weighted least squares (WLS) solution, fm="gls" does a generalized weighted least squares (GLS),
+#fm="pa" will do the principal factor solution, fm="ml" will do a maximum likelihood factor analysis. 
+#fm="minchi" will minimize the sample size weighted chi square when treating pairwise correlations with different number of subjects per pair.
+
+##minimum average partial (MAP;Velicer, 1976) criteria and parallel analysis (Horn,
+#1965) are some of the more robust methods (Velicer& Jackson, 1990)
+
+fa.parallel(data,fa="fa",fm="mlr")
+fa.parallel(data,fa="fa")
+VSS(data)
+### Ca ne tourne pas !! Normal !!
+# AFE, h2 communalité (doit être haute, supérieure 0.6, u2 inf à 0.4)
+res<-fa(data,4,rotate="promax",fm="mlr")
+
+print(res, digits = 3)
+
+
+
+
+```
+## Les rotations
+
+Afin de pouvoir interpréter plus facilement les résultats des analyses factorielles, il est nécessaire de faire appel à une méthode de rotation (au-delà de 2 facteurs). Le principe de la rotation n'est pas de modifier les relations obtenues entre les variables observées et les facteurs, mais juste d'améliorer la lisibilité des résultats.
+
+Il existe deux familles de rotation. Les rotations orthogonales et obliques. Les rotations orthogonales doivent être privilégiées lorsque l'on fait l'hypothèse que les facteurs (ou composantes) obtenus ne sont pas corrélés entre eux. Pour cette famille de rotation l'interprétation va se centrer la relation de chaque variable observée avec chaque facteur. Au contraire, les rotations obliques devront être employées s'il est supposé que les facteurs obtenus sont corrélés entre eux. Dans ce cas, en plus de la matrice de corrélation calculée pour les rotations orthogonales, une matrice supplémentaire incluant les corrélations entre les facteurs va être produite pour les rotations obliques. Il est à noter qu'en SHS la plupart des factorisations impliquent une corrélation entre les facteurs. Il est assez rare d'obtenir des facteurs qui ne soient pas du tout corrélés dans ces disciplines.
+
+## Interprétation des résultats
+
+Une bonne analyse factorielle fait sens et donne du sens à nos données. Une mauvaise est incohérente. (CF : Tabachnick & Fidell, 2014). Importance de pouvoir nommer les facteurs et les composantes. 
+
+## L'Analyse factorielle confirmatoire
+
+Dans le cadre de l'AFE nous identifions les facteurs latents sous-jacent à notre base de données sans hypothèse préalable sur le nombre de ces facteurs latents. Le nombre de facteurs émerge selon la structure qui ressort de nos données. 
+En revanche, dans le cadre de l'analyse factorielle confirmatoire nous allons tester au contraire un modèle avec des hypothèses pré-établies sur nos facteurs latents. Nous allons imposer une structure aux données et nous allons étudier dans quelle mesure les données vont correspondre à notre structure prédéfinie.
+C'est en ce sens que cette analyse est confirmatoire, nous étudions comment un modèle pré-établi est confirmé par des données observées. On va tester l'ajustement d'un modèle théorique aux données observées par l'intermédiaire de différents indices témoignant de cette adéquation. 
+
+L'analyse factorielle confirmatoire est donc un très bon complément à l'AFE. Il est d'ailleurs très fréquent que ces deux méthodes soient utilisées ensemble. (et même plutôt recommandé, CF : Flora & Flake 2017 : [Flora, D. B., & Flake, J. K. (2017). The purpose and practice of exploratory and confirmatory factor analysis in psychological research: Decisions for scale development and validation. Canadian Journal of Behavioural Science / Revue canadienne des sciences du comportement, 49(2), 78–88. https://doi.org/10.1037/cbs0000069])
+Cependant, l'analyse confirmatoire ne peut pas se faire sur le même jeu de données que l'AFE, à moins d'utiliser une partie des données comme échantillon d'entrainement pour identifier des facteurs latents et l'autre partie comme échantillon test pour tester le modèle.
+Pour réaliser efficacement le duo AFE/AFC il est bon d'avoir une base de données avec un grand nombre d'individus, pour permettre la création d'un échantillon d'entrainement et de test suffisamment grand. Il est de pratique courante de diviser un échantillon en deux parties de façon aléatoire. Sur une première moitié sera alors réalisé l'AFE et sur la seconde moitié l'AFC. 
+
+L'analyse factorielle confirmatoire fait partie de la famille des modèles en équations structurelles, permettant de tester l'adéquation des données à un modèle théorique prédéfini. 
+
+## L'analyse factorielle confirmatoire en pratique
+```{r}
+
+### Attacher car R refuse les $
+attach(data_p2)
+
+modelS <- 'F1 =~ RNB_hab + plus65
+           F2 =~ indice_pop_active + tx_mort_infantile + esp_vie
+           F3 =~ Superf
+           F4 =~ Densite'
+
+
+fitMLR <- lavaan::cfa (modelS, std.lv=T, estimator="MLR", data=data_p2)
+summary(fitMLR, standardized=T, modindices = T, fit.measures=T)
+## Saturations standardisées
+resid(fitMLR,type="standardized")
+```
+
+
+## Qu'est ce qu'un modèle d'équation structurelle (SEM)
+
+La recherche en sciences sociales se développe en s’appuyant sur des concepts qui ne sont pas directement observables. Les variables latentes qui sous-tendent ces concepts ne sont pas directement mesurables, mais sont mises en évidence grâce à des modèles théoriques formalisés a priori. Les modèles en équations structurelles permettent de tester statistiquement ces modèles intégrant des variables latentes et leurs relations avec les variables mesurées. Les modèles d'équation structurelle ou SEM renvoient à une approche statistique utilisée pour modéliser et analyser les relations complexes entre des variables observées et/ou non observées. Il s'agit de modéliser les différentes relations causales entres les variables impliquées dans notre modèle, qu'il s'agisse de variables observés, mesurées ou des facteurs latents.
+Les premiers modèles structuraux ont été développé en biologie dans les années 1920 et ont investi les sciences sociales tout au long du 20ème siècle. En plein essor depuis deux décennies, les modèles structuraux se sont complexifiés afin de pouvoir appréhender statistiquement des modèles théoriques complexes. La grande famille des modèles en équations structurales permet de tester des modèles contenant des variables continues, ordinales, catégorielles, dans le champ des analyses factorielles (Confirmatory factorial analysis), des régressions (Mediations / moderations, etc.), des classifications (Latent profils analysis, Latent Class analysis), des modèles longitudinaux (Growth models), entre autres…
+
+On pourrait peut-être aussi faire un lien avec la Recherche Reproductible, car le fait de tester ses hypothèses et seulement ses hypothèses sans faire du p-hacking est une pratique valorisée par la recherche reproductible et à laquelle les SEM répondent. 
+
+
+
+# Bibliographie {-}
+
+<div id="refs"></div>
+Tabachnick, B., & Fidell, L., Using multivariate statistics, Pearson, 2012.
+
+# Annexes {-}
+
+## Info session  {-}
+
+```{r session_info, echo=FALSE}
+kableExtra::kable_styling(knitr::kable(rzine::sessionRzine()[[1]], row.names = F))
+kableExtra::kable_styling(knitr::kable(rzine::sessionRzine()[[2]], row.names = F))
+```
+
+## Citation {-}
+
+```{r Citation, echo=FALSE}
+rref <- bibentry(
+   bibtype = "misc",
+   title = "Titre de la fiche",
+   subtitle = "Sous-Titre de la fiche",
+   author = c("Premier Auteur.e", "Second Auteur.e"),
+   doi = "10.48645/xxxxxx",
+   url = "https://rzine.fr/publication_rzine/xxxxxxx/",
+   keywords ="FOS: Other social sciences",
+   language = "fr",
+   publisher = "FR2007 CIST",
+   year = 2021,
+   copyright = "Creative Commons Attribution Share Alike 4.0 International")
+
+``` 
+
+`r capture.output(print(rref))`
+
+### BibTex : {-}
+
+```{r generateBibTex, echo=FALSE}
+
+writeLines(toBibtex(rref), "cite.bib")
+toBibtex(rref)
+
+``` 
+
+<br/>
+
+## Glossaire {- #endnotes}
+
+```{js, echo=FALSE}
+
+$(document).ready(function() {
+  $('.footnotes ol').appendTo('#endnotes');
+  $('.footnotes').remove();
+});
+
+```

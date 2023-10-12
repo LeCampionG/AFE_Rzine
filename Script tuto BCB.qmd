@@ -1,0 +1,614 @@
+---
+title: "Tuto SEM"
+author: "Solenne Roux"
+format: docx
+editor: visual
+---
+
+## Création base de données BlackCatBias
+
+[Lien vers l'article](https://journals-sagepub-com.docelec.u-bordeaux.fr/doi/10.1177/0033294119844982)
+
+```{r}
+## Packages n?cessaires
+
+if (!require("pacman")) install.packages("pacman")
+pacman::p_load(dplyr, effectsize, faux, fungible, ggplot2, hbmem, lavaan, psych, simsem, table1, tidySEM, truncnorm, writexl)
+```
+
+Cr?ation des donn?es sociod?mographiques et de l'?valuation des photos de chats.
+
+```{r}
+# fixer l'al?a
+set.seed(123)
+
+# Elements sociodemo
+Age<-round(rtruncnorm(101, a = 18, b = 70, mean = 34.98, sd = 12.42), digits = 0)
+(51*100)/101
+Sex<-rbinom(101,1,0.168)
+
+
+# Evaluation des chats
+dt_table1 <- rnorm_multi(n = 101,
+                   mu = c(35.46,37.10,20.86,19.31,32.20,32.38,32.65,33.32),
+                   sd = c(7.28,7.11,8.09,6.95,12.20,11.84,9.15,9.40),
+                   varnames = c("blackcat_friendliness","nonblackcat_friendliness", "blackcat_aggressiveness", "nonblackcat_aggressiveness",
+                                "blackcat_adopt", "nonblackcat_adopt", "blackcat_emotion", "nonblackcat_emotion"),
+                   empirical = FALSE)
+
+```
+
+#### Santa Clara Strenght of Religious Faith Questionnaire
+
+![](featured.png)
+
+*Please answer the following questions about religious faith using the scale below. Indicate the level of agreement (or disagreement) for each statement.*
+
+1 = Strongly disagree
+
+2 = Disagree
+
+3 = Agree
+
+4 = Strongly Agree
+
+1.  My religious faith is extremely important to me.
+2.  I pray daily.
+3.  I look to my faith as a source of inspiration.
+4.  I look to my faith as providing meaning and purpose in my life.
+5.  I consider myself active in my faith or church.
+6.  My faith is an important part of who I am as a person.
+7.  My relationship with God is very important to me.
+8.  I enjoy being around others who share my faith.
+9.  I look to my faith as a source of comfort.
+10. My faith impacts many of my decisions.
+
+Simulation de donn?es ? partir de l'article de validation du questionnaire : Santa Clara Strenght of Religious Faith Questionnaire (Plante & Boccaccini, 1997).
+
+Lien vers [l'article](https://link.springer.com/article/10.1007/BF02230993)
+
+lien [article](https://www.mdpi.com/2077-1444/5/1/157) factor loadings
+
+Test [simsem](https://simsem.org/):
+
+Tests à partir présentation MonteCarlo (M3 - voir PDF)
+
+```{r}
+
+popModelSCSRFQ <- "
+f1 =~ 0.84*SCSRF1 + 0.87*SCSRF2 + 0.83*SCSRF3 + 0.92*SCSRF4 + 0.85*SCSRF5 + 0.88*SCSRF6 + 0.88*SCSRF7 + 0.79*SCSRF8 + 0.83*SCSRF9 + 0.73*SCSRF10
+f1 ~~ 1*f1
+"
+
+dataSCSRFQ <- simulateData(popModelSCSRFQ, sample.nobs = 101)
+
+analyzeModelSCSRFQ <- "
+f1 =~ SCSRF1 + SCSRF2 + SCSRF3 + SCSRF4 + SCSRF5 + SCSRF6 + SCSRF7 + SCSRF8 + SCSRF9 + SCSRF10
+"
+
+dataSCSRFQ <- cfa(analyzeModelSCSRFQ, data = dataSCSRFQ, std.lv = TRUE)
+
+# Use simsem to simulate and analyze multiple data sets
+set.seed(42)
+
+datSCSRFQ <- generate(dataSCSRFQ, 101)
+```
+
+#### Revised Paranormal Belief Scale
+
+*Please put a number next to each item to indicate how much you agree or disagree with that item. Use the numbers as indicated below. There are no right or wrong answers. This is a sample of your own beliefs and attitudes. Thank you.*
+
+1=Strongly Disagree 2=Moderately Disagree 3=Slightly Disagree
+
+4=Uncertain 5=Slightly Agree 6=Moderately Agree 7=Strongly Agree
+
+1\. The soul continues to exist though the body may die.
+
+2\. Some individuals are able to levitate (lift) objects through mental forces.
+
+3\. Black magic really exists.
+
+4\. Black cats can bring bad luck.
+
+5\. Your mind or soul can leave your body and travel (astral projection).
+
+6\. The abominable snowman of Tibet exists.
+
+7\. Astrology is a way to accurately predict the future.
+
+8\. There is a devil.
+
+9\. Psychokinesis, the movement of objects through psychic powers, does exist.
+
+10\. Witches do exist.
+
+11\. If you break a mirror, you will have bad luck.
+
+12\. During altered states, such as sleep or trances, the spirit can leave the body.
+
+13\. The Loch Ness monster of Scotland exists.
+
+14\. The horoscope accurately tells a person's future.
+
+15\. I believe in God
+
+16\. A person's thoughts can influence the movement of a physical object.
+
+17\. Through the use of formulas and incantations, it is possible to cast spells on
+
+persons.
+
+18\. The number "13" is unlucky.
+
+19\. Reincarnation does occur.
+
+20\. There is life on other planets.
+
+21\. Some psychics can accurately predict the future.
+
+22\. There is a heaven and a hell.
+
+23\. Mind reading is not possible
+
+24\. There are actual cases of witchcraft.
+
+25\. It is possible to communicate with the dead.
+
+26\. Some people have an unexplained ability to predict the future.
+
+Note: Item 23 is reversed for scoring.
+
+Traditional Religious Belief = Mean of Items (1, 8, 15, 22)
+
+Psi = Mean of Items (2, 9, 16, 23)
+
+Witchcraft = Mean of Items (3, 10, 17, 24)
+
+Superstition = Mean of Items (4, 11, 18)
+
+Spiritualism = Mean of Items (5, 12, 19, 25)
+
+Extraordinary Life Forms = Mean of Items (6, 13, 20)
+
+Precognition = Mean of Items (7, 14, 21, 26)
+
+Simulation de donn?es ? partir de l'article de validation de la Revised Paranormal Belief Scale (Tobacyk, 2004)
+
+Lien vers [l'article](http://dx.doi.org/10.24972/ijts.2004.23.1.94)
+
+Lien vers [l'article](https://www.frontiersin.org/articles/10.3389/fpsyg.2017.01693/full) avec les loadings et vers le [modèle](https://www.frontiersin.org/files/Articles/301298/fpsyg-08-01693-HTML/image_m/fpsyg-08-01693-g001.jpg) final (\*certaines valeurs du facteur général ont été modifiées afin d'obtenir un modèle satisfaisant ;) .40 =\> .70; .50=\> .60; 60 =\> .80; .22 =\> .82
+
+RPBS avec les 7 sous-échelles
+
+```{r}
+popModelRPBS7 <- "
+          TRB	=~ 0.36*RPSBS1 + 0.69*RPSBS8 + 0.71*RPSBS15 + 0.84*RPSBS22
+          Psi =~ 0.50*RPSBS2 + 0.44*RPSBS9 + 0.52*RPSBS16 + 0.03*RPSBS23
+          Witchcraft =~ 0.43*RPSBS3 + 0.62*RPSBS10 + 0.34*RPSBS17 + 0.62*RPSBS24
+          Superstition =~ 0.54*RPSBS4 + 0.72*RPSBS11 + 0.67*RPSBS18
+          Spiritualism =~ 0.45*RPSBS5 + 0.37*RPSBS12 + 0.06*RPSBS19 + 0.04*RPSBS25
+          Extraordinary Life Forms =~ 0.62*RPSBS6 + 0.62*RPSBS13 + 0.08*RPSBS20
+          Precognition =~ 0.53*RPSBS7 + 0.57*RPSBS14 + 0.12*RPSBS21 + 0.02*RPSBS26
+
+"
+
+dataRPBS7 <- simulateData(popModelRPBS7, sample.nobs = 101)
+
+analyzeModelRPBS7 <- "
+          TRB 	=~ RPSBS1 + RPSBS8 + RPSBS15 + RPSBS22
+          Psi 	=~ RPSBS2 + RPSBS9 + RPSBS16 + RPSBS23
+          Witchcraft =~ RPSBS3 + RPSBS10 + RPSBS17 + RPSBS24
+          Superstition =~ RPSBS4 + RPSBS11 + RPSBS18
+          Spiritualism =~ RPSBS5 + RPSBS12 + RPSBS19 + RPSBS25
+          Extraordinary Life Forms =~ RPSBS6 + RPSBS13 + RPSBS20
+          Precognition =~ RPSBS7 + RPSBS14 + RPSBS21 + RPSBS26
+"
+
+dataRPBS7 <- cfa(analyzeModelRPBS7, data = dataRPBS7, std.lv = TRUE)
+
+# Use simsem to simulate and analyze multiple data sets
+set.seed(42)
+
+datRPBS7 <- generate(dataRPBS7, 101)
+```
+
+RPBS facteur commun
+
+```{r}
+popModelRPBS <- "
+          RPBS	=~ 0.82*RPSBS1 + 0.76*RPSBS8 + 0.71*RPSBS15 + 0.73*RPSBS22
+          + 0.74*RPSBS2 + 0.72*RPSBS9 + 0.73*RPSBS16 + 0.76*RPSBS23
+          + 0.87*RPSBS3 + 0.66*RPSBS10 + 0.89*RPSBS17 + 0.81*RPSBS24
+          + 0.74*RPSBS4 + 0.60*RPSBS11 + 0.75*RPSBS18
+          + 0.86*RPSBS5 + 0.75*RPSBS12 + 0.87*RPSBS19 + 0.80*RPSBS25
+          + 0.75*RPSBS6 + 0.75*RPSBS13 + 0.82*RPSBS20
+          + 0.87*RPSBS7 + 0.80*RPSBS14 + 0.81*RPSBS21 + 0.81*RPSBS26
+
+"
+
+dataRPBS <- simulateData(popModelRPBS, sample.nobs = 101)
+
+analyzeModelRPBS <- "
+          RPBS 	=~ RPSBS1 + RPSBS8 + RPSBS15 + RPSBS22
+          + RPSBS2 + RPSBS9 + RPSBS16 + RPSBS23
+          + RPSBS3 + RPSBS10 + RPSBS17 + RPSBS24
+          + RPSBS4 + RPSBS11 + RPSBS18
+          + RPSBS5 + RPSBS12 + RPSBS19 + RPSBS25
+          + RPSBS6 + RPSBS13 + RPSBS20
+          + RPSBS7 + RPSBS14 + RPSBS21 + RPSBS26
+"
+
+dataRPBS <- cfa(analyzeModelRPBS, data = dataRPBS, std.lv = TRUE)
+
+# Use simsem to simulate and analyze multiple data sets
+set.seed(42)
+
+datRPBS <- generate(dataRPBS, 101)
+```
+
+#### MRS - Modern Racism Scale (McConahay, 1986)
+
+The MRS consists of 7 items worded as opinion statements rated on the following Likert-type scale: +2 (agree strongly), +1 (agree somewhat), 0 (neither agree nor disagree or no opinion), -1 (disagree somewhat), and -2 (disagree strongly)
+
+1.  It is easy to understand the anger of black people in America.
+2.  Blacks have more influence upon school desegregation plans than they ought to have.
+3.  Blacks are getting too demanding in their push for equal rights.
+4.  Over the past few years blacks have gotten more economically than they deserve.
+5.  Over the past few years the government and news media have shown more respect to blacks than they deserve.
+6.  Blacks should not push themselves where they're not wanted.
+7.  Discrimination against blacks is no longer a problem in the United States.
+
+```{r}
+
+popModelMRS <- "
+MRS =~ 0.64*MRS1 + 0.57*MRS2 + 0.32*MRS3 + 0.62*MRS4 + 0.38*MRS5 + 0.37*MRS6 + 0.48*MRS7
+MRS ~~ 1*MRS
+"
+
+dataMRS <- simulateData(popModelMRS, sample.nobs = 101)
+
+analyzeModelMRS <- "
+MRS =~ MRS1 + MRS2 + MRS3 + MRS4 + MRS5 + MRS6 + MRS7
+"
+
+dataMRS <- cfa(analyzeModelMRS, data = dataMRS, std.lv = TRUE)
+
+# Use simsem to simulate and analyze multiple data sets
+set.seed(42)
+
+datMRS <- generate(dataMRS, 101)
+```
+
+Base de donn?es compl?te
+
+```{r}
+
+# Création d'une variable identifiant pour dt_table1, SCSRFQ et RPBS
+dt_table1$ID<-(1:101)
+datSCSRFQ$ID<-(1:101)
+datRPBS$ID<-(1:101)
+
+BCB<-dt_table1 %>% 
+  left_join(datSCSRFQ, by="ID") %>% 
+  left_join (datRPBS, by = "ID")
+```
+
+## Analyses factorielles confirmatoires
+
+### Santa Clara Strenght of Religious Faith Questionnaire
+
+Centrer les variables (Dans notre exemple pas besoin car ce sont des données simulées déjà centrées)
+
+```{r}
+# Centrer et réduire les variables pour les mettre sur une même échelle et pouvoir les comparer dans une analyse multivariée
+datSCSRFQC<-scale(datSCSRFQ, center=T, scale=T)
+
+# Recréer un data.frame à partir de ces données
+datSCSRFQC<-data.frame(datSCSRFQC)
+```
+
+Rechercher des multioutliers
+
+```{r}
+# Création d'une variable identifiant
+datSCSRFQC$ID<-(1:101)
+
+# Outliers - Calcul pour chaque individu de la distance de Mahalnobis
+test<-data.frame(outlier(datSCSRFQC),datSCSRFQC$ID)
+sort(test$outlier.datSCSRFQC.)
+#test2<-subset(test, outlier.datSCSRFQC.>22)
+#suppression d'1 outlier
+datSCSRFQC<-subset(datSCSRFQC, !ID %in% c("7"))
+
+# Suppression de la colonne identifiant - pour ne conserver que les variables d'intérêts.
+datSCSRFQCp<-subset(datSCSRFQC, select = -c(ID))
+```
+
+Matrice de corrélation
+
+```{r}
+
+### Matrice de corr?lation
+corr.test(datSCSRFQCp, method="spearman")
+```
+
+Analyse factorielle confirmatoire
+
+```{r}
+### Attacher car lavaan refuse les $
+attach(datSCSRFQCp)
+
+modelS <- 'F_SCSRF 	=~ SCSRF1 + SCSRF2 + SCSRF3 + SCSRF4 + SCSRF5 + SCSRF6 + SCSRF7 + SCSRF8 + SCSRF9 + SCSRF10'
+
+fitMLRS <- cfa (modelS, std.lv=T, estimator="MLR", data=datSCSRFQCp)
+summary(fitMLRS, standardized=T, modindices = T, fit.measures=T)
+## Saturations standardis?es
+resid(fitMLRS,type="standardized")
+
+# Interprétation de la sortie
+interpret(fitMLRS)
+
+```
+
+Représentation graphique - A REVOIR !!!
+
+```{r}
+
+par(mfrow=c(1,1))
+
+lay <- get_layout( "", "", "", "", "F_SCSRF", "", "", "", "", "",
+                  "SCSRF1", "SCSRF2", "SCSRF3", "SCSRF4", "SCSRF5", "SCSRF6", "SCSRF7", "SCSRF8", "SCSRF9", "SCSRF10", rows = 2)
+                  
+graph_sem(modelS = fitMLRS, layout = lay)
+
+```
+
+### RPBS
+
+Centrer les variables (Dan notre exemple pas besoin car ce sont des données simulées déjà centrées)
+
+```{r}
+# Centrer et réduire les variables pour les mettre sur une même échelle et pouvoir les comparer dans une analyse multivariée
+datRPBS7C<-scale(datRPBS7, center=T, scale=T)
+
+# Recréer un data.frame à partir de ces données
+datRPBS7C<-data.frame(datRPBS7C)
+```
+
+Rechercher des multioutliers
+
+```{r}
+# Création d'une variable identifiant
+datRPBS7C$ID<-(1:101)
+
+# Outliers - Calcul pour chaque individu de la distance de Mahalnobis
+test<-data.frame(outlier(datRPBS7C),datRPBS7C$ID)
+sort(test$outlier.datRPBS7C.)
+
+# Aucun outlier identifié avec la distance de Mahalanobis
+
+# Suppression de la colonne identifiant - pour ne conserver que les variables d'intérêts.
+datRPBS7Cp<-subset(datRPBS7C, select = -c(ID))
+```
+
+Matrice de corrélation
+
+```{r}
+### Matrice de corr?lation
+corr.test(datRPBS7Cp, method="spearman")
+```
+
+Analyse factorielle confirmatoire
+
+RPBS en 7 facteurs
+
+```{r}
+
+### Attacher car R refuse les $
+attach(datRPBS7Cp)
+
+modelR7 <- 'TRB 	=~ RPSBS1 + RPSBS8 + RPSBS15 + RPSBS22
+          Psi 	=~ RPSBS2 + RPSBS9 + RPSBS16 + RPSBS23
+          Witchcraft =~ RPSBS3 + RPSBS10 + RPSBS17 + RPSBS24
+          Superstition =~ RPSBS4 + RPSBS11 + RPSBS18
+          Spiritualism =~ RPSBS5 + RPSBS12 + RPSBS19 + RPSBS25
+          Extraordinary Life Forms =~ RPSBS6 + RPSBS13 + RPSBS20
+          Precognition =~ RPSBS7 + RPSBS14 + RPSBS21 + RPSBS26'
+
+fitMLRR7 <- cfa (modelR7, std.lv=T, estimator="MLR", data=datRPBS7Cp)
+summary(fitMLRR7, standardized=T, modindices = F, fit.measures=T)
+## Saturations standardis?es
+resid(fitMLRR7,type="standardized")
+
+# interprétation de la sortie
+interpret(fitMLRR7)
+```
+
+RPBS facteur général
+
+Centrer les variables (Dans notre exemple pas besoin car ce sont des données simulées déjà centrées)
+
+```{r}
+# Centrer et réduire les variables pour les mettre sur une même échelle et pouvoir les comparer dans une analyse multivariée
+datRPBSC<-scale(datRPBS, center=T, scale=T)
+
+# Recréer un data.frame à partir de ces données
+datRPBSC<-data.frame(datRPBSC)
+```
+
+Rechercher des multioutliers
+
+```{r}
+# Création d'une variable identifiant
+datRPBSC$ID<-(1:101)
+
+# Outliers - Calcul pour chaque individu de la distance de Mahalnobis
+test<-data.frame(outlier(datRPBSC),datRPBSC$ID)
+sort(test$outlier.datRPBSC.)
+
+# Aucun outlier identifié avec la distance de Mahalanobis
+
+# Suppression de la colonne identifiant - pour ne conserver que les variables d'intérêts.
+datRPBSCp<-subset(datRPBSC, select = -c(ID))
+```
+
+Matrice de corrélation
+
+```{r}
+### Matrice de corr?lation
+corr.test(datRPBSCp, method="spearman")
+```
+
+Analyse factorielle confirmatoire
+
+```{r}
+### Attacher car R refuse les $
+attach(datRPBSCp)
+
+modelR <- 'RPBS 	=~ RPSBS1 + RPSBS8 + RPSBS15 + RPSBS22
+          + RPSBS2 + RPSBS9 + RPSBS16 + RPSBS23
+          + RPSBS3 + RPSBS10 + RPSBS17 + RPSBS24
+          + RPSBS4 + RPSBS11 + RPSBS18
+          + RPSBS5 + RPSBS12 + RPSBS19 + RPSBS25
+          + RPSBS6 + RPSBS13 + RPSBS20
+          + RPSBS7 + RPSBS14 + RPSBS21 + RPSBS26'
+
+fitMLRR <- cfa (modelR, std.lv=T, estimator="MLR", data=datRPBSCp)
+summary(fitMLRR, standardized=T, modindices = F, fit.measures=T)
+## Saturations standardis?es
+resid(fitMLRR,type="standardized")
+
+# Intrepréation de la sortie
+interpret(fitMLRR)
+```
+
+Représentation graphique
+
+```{r}
+library(tidySEM)
+library(lavaan)
+library(ggplot2)
+library(dplyr)
+
+
+par(mfrow=c(1,1))
+
+lay <- get_layout( "", "TRB","","","","Psi","","","","Witchcraft","","","","Superstition","","","Spiritualism","","","","Extraordinary Life Forms","","","Precognition","","",
+                  "RPSBS1", "RPSBS8", "RPSBS15", "RPSBS22", "RPSBS2", "RPSBS9", "RPSBS16", "RPSBS23", "RPSBS3", "RPSBS10", "RPSBS17", "RPSBS24", "RPSBS4", "RPSBS11", "RPSBS18", "RPSBS5", "RPSBS12", "RPSBS19", "RPSBS25", "RPSBS6", "RPSBS13", "RPSBS20", "RPSBS7", "RPSBS14", "RPSBS21", "RPSBS26", rows = 2)
+graph_sem(model = fitMLRR, layout = lay)
+```
+
+MRS
+
+Centrer les variables
+
+```{r}
+# Centrer et réduire les variables pour les mettre sur une même échelle et pouvoir les comparer dans une analyse multivariée
+datMRSC<-scale(datMRS, center=T, scale=T)
+
+# Recréer un data.frame à partir de ces données
+datMRSC<-data.frame(datMRSC)
+```
+
+Rechercher des multioutliers
+
+```{r}
+# Création d'une variable identifiant
+datMRSC$ID<-(1:101)
+
+# Outliers - Calcul pour chaque individu de la distance de Mahalnobis
+test<-data.frame(outlier(datMRSC),datMRSC$ID)
+sort(test$outlier.datMRSC.)
+
+# Aucun outlier identifié avec la distance de Mahalanobis
+
+# Suppression de la colonne identifiant - pour ne conserver que les variables d'intérêts.
+datMRSCp<-subset(datMRSC, select = -c(ID))
+```
+
+Matrice de corrélation
+
+```{r}
+### Matrice de corr?lation
+corr.test(datMRSCp, method="spearman")
+```
+
+Analyse factorielle confirmatoire
+
+```{r}
+### Attacher car R refuse les $
+attach(datMRSCp)
+
+modelM <- 'MRS 	=~ MRS1 + MRS2 + MRS3 + MRS4
+          + MRS5 + MRS6 + MRS7'
+
+fitMLRM <- cfa (modelM, std.lv=T, estimator="MLR", data=datMRSCp)
+summary(fitMLRM, standardized=T, modindices = F, fit.measures=T)
+## Saturations standardis?es
+resid(fitMLRM,type="standardized")
+```
+
+## Mod?le en piste causale - SEM
+
+Centrer les variables de la base de données (sauf variable identifiant)
+
+```{r}
+BCB1<-subset(BCB, select = -c(ID))
+
+BCBC<-data.frame(scale(BCB1, center=T, scale=T))
+```
+
+Rechercher des multioutliers
+
+```{r}
+# Création d'une variable identifiant
+BCBC$ID<-(1:101)
+
+# Outliers - Calcul pour chaque individu de la distance de Mahalnobis
+## WTF ???
+test<-data.frame(outlier(BCBC),BCBC$ID)
+sort(test$outlier.BCBC.)
+
+# Aucun outlier identifié avec la distance de Mahalanobis
+
+# Suppression de la colonne identifiant - pour ne conserver que les variables d'intérêts.
+#datMRSCp<-subset(datMRSC, select = -c(ID))
+```
+
+### Modèle en pistes causales
+
+```{r}
+# Modèle en pistes causales
+
+## Résultats avec les variables finales
+
+# Modèle SEM linéaire "emboîté" semble le plus parcimonieux et le mieux s'ajuster aux données
+# Neurocognition ->Cognition Sociale ->alexithymia->fonctional outcome
+# exemple sem avec lavaan
+model0 <- '
+  # measurement model
+    NCG 	=~ CodeTestNB + FluPNB + gbrl3 + MDCTNB + D2GZFpart1 + WPEPersLOG
+    CS 	=~ FlEmoNtotémo + TtalIR + AIAtot + FTELtot + FTCFtot + pctBRFPA + LEASIttot
+    AX 	=~ BVAQF1 + BVAQF3 + BVAQF5LOG
+  # regressions
+    CS ~ NCG
+    AX ~ CS
+   
+'
+
+fit0 <- sem(model0, data = TOTS2)
+summary(fit0, standardized = TRUE, fit.measures=T)
+MI<-modindices(fit0, standardized = T)
+MI2<-subset(MI, mi > 5)
+
+**Lecure résultats modèle 1 (sans modifications et donc sans covariances)**
+Test d'un modèle sans covariances. Il n'est pas satisfaisant.
+
+p. value chi² <0.05 : le modèle ne s'ajuste pas *Le chi² ne doit pas être significatif*
+CFI : 0.866 *Acceptable si >0.95*
+TLI : 0.842 *Acceptable si >0.95*
+RMSEA : 0.069 *Acceptable si <0.06*
+SRMR : 0.084 *Acceptable si <0.08*
+
+
+```
